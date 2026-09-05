@@ -1,0 +1,7 @@
+all.json
+inferred.json
+nofix.json
+export_A/
+*.log
+__pycache__/
+.DS_Store
