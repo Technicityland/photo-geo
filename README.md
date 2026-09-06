@@ -43,6 +43,10 @@ An implied ground speed above 1,000 km/h between anchors demotes the fix to low:
 
 IMG_3542, 2016-02-01 16:00:19, untagged, iPhone 6s. Inferred 2.050N 101.712E, method `interpolate`, confidence high. Compared against Esri World Imagery of Rupat Utara's east coast: the hairpin double meander with a rectangular clearing inside the bend, the river mouth with its sand spit and sediment plume, the shore village on the near bank, the second village across the river and the straight inland road all line up. OpenStreetMap reverse-geocodes the mouth to Kadur, Rupat Utara, Bengkalis, Riau. The aircraft was directly over the village.
 
+![IMG_3542 beside Esri imagery of Rupat Utara's east coast](validation/rupat-check.jpg)
+
+*Left: the frame, rotated relative to north. Right: current Esri World Imagery, 2.02–2.06N 101.69–101.74E. Match the river loop and the mouth.*
+
 The twenty `flight_model` frames over the Pacific south of Japan remain unverified and are labelled low. That is the point of the label.
 
 ## Running it
