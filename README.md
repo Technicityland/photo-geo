@@ -95,3 +95,13 @@ Record only: no interpretation, no adjectives. Runs `infer.py` if `inferred.json
 - **Content labels** — up to 6 photos per day (favourites, then non-screenshots, spread across the day) sent to Claude vision for 1–3 plain nouns each. Cached by uuid in `labels-cache.json`; processed newest year first; outputs rewritten after each year so a partial run is usable. Skipped, with a note, when no Anthropic credentials are available. Photos' own on-device `labels` (free, every item) fill the content line for every day; each set is marked `(claude)` or `(apple)`.
 
 Outputs: `journal.md` (index) + `journal-YYYY.md`, `days.csv`, `stays.csv`, `flights.csv`, `months.csv` (one row per month across the full span, zero rows kept; `nights_away_from_KL` = nights inside a stay centred more than 30 km from Kuala Lumpur city centre; `nights_unplaced` = nights between two stays in different places), `map.html` (stays sized by nights, flight legs, year slider). Plain `year` column everywhere. The library is never written to.
+
+## `import_folder.py` — bring camera-dated files from a folder into Photos
+
+```bash
+exiftool -q -q -fast2 -r -json -DateTimeOriginal -Model -FileSize# -ImageSize -MIMEType FOLDER > inv.json
+python3 import_folder.py inv.json --album "Import 2026-09-13" --dry-run   # plan and counts only
+python3 import_folder.py inv.json --album "Import 2026-09-13"             # import in batches of 40
+```
+
+Only files with an EXIF capture date are considered; an undated file would land in Photos with today's date. Duplicates are dropped inside the folder (same capture second, camera, byte size, pixel size) and against `all.json` (same original filename and capture second, or same capture second, camera and pixel size). The import is Photos' own AppleScript `import` into one new album, with Photos' duplicate check left on as a second guard. The only write to the library this repository makes, and only on an explicit run.
