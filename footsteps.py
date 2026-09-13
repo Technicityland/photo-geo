@@ -74,6 +74,7 @@ def load_items(no_infer=False):
             camera=ex.get('camera_model') or '', camera_make=ex.get('camera_make') or '',
             place_name=pl.get('name') or '', place_city=ad.get('city') or '', place_country=ad.get('country') or '',
             place_cc=pl.get('country_code') or '', derivatives=p.get('path_derivatives') or [],
+            apple_labels=sorted(set(x.strip().lower() for x in (p.get('labels') or []) if x)),
             lat=None, lon=None, provenance='none', method='', confidence='',
         )
         if p.get('latitude') is not None and p.get('longitude') is not None:
@@ -323,12 +324,9 @@ def journal_block(d, stay_of_day, flights_by_day, cache):
     stay = f"{s['city'] + ', ' if s['city'] else ''}{s['country']}" if s else ''
     fl = '; '.join(f"{f['origin_city'] or f['origin_country']} → {f['destination_city'] or f['destination_country']} ({f['distance_km']} km, {f['model']})"
                    for f in flights_by_day.get(d['day'], []))
-    labs = []
-    for it in d['items']:
-        v = cache.get(it['uuid'])
-        if v and v.get('labels'):
-            labs += v['labels']
-    labels = ', '.join(sorted(set(labs)))
+    claude = sorted(set(l for it in d['items'] for l in (cache.get(it['uuid']) or {}).get('labels', [])))
+    apple = sorted(set(l for it in d['items'] for l in it['apple_labels']))
+    labels = '; '.join(x for x in [', '.join(claude) + ' (claude)' if claude else '', ', '.join(apple) + ' (apple)' if apple else ''] if x)
     prov = d['provenance']
     if d['clusters']:
         prov += ' / place: ' + ', '.join(sorted(set(c['place_provenance'] for c in d['clusters'])))
@@ -363,7 +361,7 @@ def write_outputs(out, items, days, stays, flights, months, cache, vision_years_
         yd = [days[k] for k in sorted(days) if days[k]['year'] == y]
         blocks = [journal_block(d, stay_of_day, flights_by_day, cache) for d in yd]
         with open(f'{out}/journal-{y}.md', 'w') as f:
-            f.write(f'# Footsteps {y}\n\nRecord only. Fields: stay city, country · item counts · placed by provenance · flights (repo great-circle model, > {int(FLIGHT_KM)} km) · persons · albums · content labels (Claude vision, nouns) · provenance.\n\n')
+            f.write(f'# Footsteps {y}\n\nRecord only. Fields: stay city, country · item counts · placed by provenance · flights (repo great-circle model, > {int(FLIGHT_KM)} km) · persons · albums · content labels: Claude vision nouns where run (claude) and the Photos on-device labels for every item (apple) · provenance.\n\n')
             f.write('\n\n'.join(blocks) + '\n')
         index.append(f"| {y} | {len(yd)} | {sum(d['n'] for d in yd)} | {sum(1 for s in stays if s['start'][:4]==str(y))} | {sum(1 for x in flights if x['year']==y)} | {'done' if y in vision_years_done else ('not run')} — [journal-{y}.md](journal-{y}.md) |")
     open(f'{out}/journal.md', 'w').write('\n'.join(index) + '\n')

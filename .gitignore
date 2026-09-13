@@ -5,3 +5,4 @@ export_A/
 *.log
 __pycache__/
 .DS_Store
+PROJECT-STATE-OF-RECORD.md
